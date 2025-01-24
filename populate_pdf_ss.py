@@ -16,34 +16,29 @@ text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,      # Ukuran chunk dalam karakter
     chunk_overlap=200,    # Overlap antar chunk
     length_function=len,
-    is_separator_regex=False,
+    separators=["\n\n", "\n", " ", ""]  # Optimalkan untuk bahasa Indonesia
 )
-texts = text_splitter.split_documents(pages)
+docs = text_splitter.split_documents(pages)
 
-# 3. Inisialisasi Embedding Model
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2",
+# 3. Inisialisasi Sentence Transformer Model
+embedding = HuggingFaceEmbeddings(
+    model_name="tomaarsen/static-similarity-mrl-multilingual-v1",
+    # model_name_or_path= "indolem/indobert-base-uncased",
     model_kwargs={"device": "cpu"}  # Gunakan "cuda" jika ada GPU
 )
 
-# 4. Simpan ke ChromaDB
+# 4. Simpan ke ChromaDB dengan Embedding Kustom
 persist_directory = "db/chroma"  # Direktori penyimpanan database
-
-# Membuat vector store baru
 vector_db = Chroma.from_documents(
-    documents=texts,
-    embedding=embeddings,
-    persist_directory=persist_directory
-)
-
-# Simpan secara permanen
-# vector_db.persist()
+    documents=docs,
+    embedding=embedding,  # Langsung gunakan fungsi embedding kustom
+    persist_directory=persist_directory)
 
 # 5. Verifikasi
 print(f"Total dokumen tersimpan: {vector_db._collection.count()}")
 
 # Contoh pencarian
-query = "apakah syarat pendaftaran snbp ?"
+query = "syarat pendaftaran snbp"
 docs = vector_db.similarity_search(query, k=3)
 print("\nHasil pencarian:")
 for doc in docs:
