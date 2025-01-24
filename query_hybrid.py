@@ -6,8 +6,14 @@ from langchain.chains import RetrievalQA
 from typing import Tuple
 
 # 1. Inisialisasi Model & Embeddings
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-# embeddings = HuggingFaceEmbeddings(model_name="tomaarsen/static-similarity-mrl-multilingual-v1")
+
+embeddings = HuggingFaceEmbeddings(
+    model_name= "tomaarsen/static-similarity-mrl-multilingual-v1",
+    # model_name= "intfloat/multilingual-e5-small",
+    # model_name="HIT-TMG/KaLM-embedding-multilingual-mini-instruct-v1.5",
+    model_kwargs={"device": "cpu"}  # Gunakan "cuda" jika ada GPU
+)
+
 llm = OllamaLLM(model="llama3.2")  # Ganti dengan model Ollama yang Anda gunakan
 
 # 2. Load Chroma DB yang sudah ada
@@ -25,10 +31,9 @@ def hybrid_rag_answer(
 ) -> Tuple[str, float, str]:
     
     # Langkah 1: Cari dokumen di RAG
-    docs_and_scores = vector_db.similarity_search_with_score(query, k=3)
-    res, score = docs_and_scores[0] if docs_and_scores else (None, 0.0)
-    # best_similarity = docs_and_scores[0][1] / 100000 if docs_and_scores else 0.0
-    best_similarity = docs_and_scores[0][1] if docs_and_scores else 0.0
+    docs_and_scores = vector_db.similarity_search_with_score(query, k=5)
+    best_similarity = docs_and_scores[0][1] / 100000 if docs_and_scores else 0.0 #untuk model tomaarsen/static-similarity-mrl-multilingual-v1
+    # best_similarity = docs_and_scores[0][1] if docs_and_scores else 0.0
     
     # Langkah 2: Hybrid Logic Berdasarkan Similarity Score
     if best_similarity >= rag_threshold:
@@ -96,7 +101,7 @@ def get_fallback_answer(query: str) -> str:
     )
 
 # 5. Contoh Penggunaan
-query = "daya tampung program studi kedokteran"
+query = "daya tampung prodi pendidikan dokter"
 answer, similarity, source = hybrid_rag_answer(query)
 
 print(f"Pertanyaan: {query}")

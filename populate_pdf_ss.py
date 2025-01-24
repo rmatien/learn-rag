@@ -13,8 +13,8 @@ pages = loader.load_and_split()
 
 # 2. Split Dokumen menjadi Chunks
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,      # Ukuran chunk dalam karakter
-    chunk_overlap=200,    # Overlap antar chunk
+    chunk_size=500,      # Ukuran chunk dalam karakter
+    chunk_overlap=50,    # Overlap antar chunk
     length_function=len,
     separators=["\n\n", "\n", " ", ""]  # Optimalkan untuk bahasa Indonesia
 )
@@ -22,8 +22,9 @@ docs = text_splitter.split_documents(pages)
 
 # 3. Inisialisasi Sentence Transformer Model
 embedding = HuggingFaceEmbeddings(
-    model_name="tomaarsen/static-similarity-mrl-multilingual-v1",
-    # model_name_or_path= "indolem/indobert-base-uncased",
+    model_name= "tomaarsen/static-similarity-mrl-multilingual-v1",
+    # model_name= "intfloat/multilingual-e5-small",
+    # model_name="HIT-TMG/KaLM-embedding-multilingual-mini-instruct-v1.5",
     model_kwargs={"device": "cpu"}  # Gunakan "cuda" jika ada GPU
 )
 

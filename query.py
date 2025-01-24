@@ -57,7 +57,7 @@ def get_answer_with_threshold(query, threshold=0.5):
     return answer, (1 - score) if docs_and_scores else 0, "Model"
 
 # 4. Contoh Penggunaan
-query = "syarat pendaftaran snbp"
+query = "daya tampung program studi ilmu hukum"
 answer, similarity, source = get_answer_with_threshold(query, threshold=0.6)
 
 print(f"Pertanyaan: {query}")
